@@ -3,6 +3,7 @@ import '@mantine/core/styles.css';
 
 import TicketsPage from './tickets/tickets';
 import { Container } from '@mantine/core';
+import TicketDetailsPage from './ticketDetails/ticketDetails';
 
 const App = () => {
   // const [tickets, setTickets] = useState([] as Ticket[]);
@@ -29,8 +30,7 @@ const App = () => {
     <Container py="lg">
       <Routes>
         <Route path="/" element={<TicketsPage />} />
-        {/* Hint: Try `npx nx g component TicketDetails --project=client --no-export` to generate this component  */}
-        <Route path="/:id" element={<h2>Details Not Implemented</h2>} />
+        <Route path="/:id" element={<TicketDetailsPage />} />
       </Routes>
     </Container>
   );

@@ -9,3 +9,10 @@ export function useTicketList() {
         queryFn: () => fetch('/api/tickets').then((response) => response.json())
     })
 }
+
+export function useTicketDetails(id: string) {
+    return useQuery<Ticket>({
+        queryKey: [`ticket/${id}`],
+        queryFn: () => fetch(`/api/tickets/${id}`).then((response) => response.json())
+    })
+}

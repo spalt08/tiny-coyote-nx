@@ -1,14 +1,9 @@
-import {
-  Badge,
-  Center,
-  Container,
-  Skeleton,
-  Table,
-  Title,
-} from '@mantine/core';
+import { Badge, Skeleton, Table, Title } from '@mantine/core';
 import { useTicketList } from '../api/hooks';
+import { useNavigate } from 'react-router-dom';
 
 export function TicketsPage() {
+  const navigate = useNavigate();
   const { isLoading, data } = useTicketList();
 
   return (
@@ -29,7 +24,11 @@ export function TicketsPage() {
           ) : (
             data &&
             data.map((it) => (
-              <Table.Tr key={it.id} style={{ cursor: 'pointer' }}>
+              <Table.Tr
+                key={it.id}
+                style={{ cursor: 'pointer' }}
+                onClick={() => navigate(`/${it.id}`)}
+              >
                 <Table.Td>{it.id}</Table.Td>
                 <Table.Td>{it.description}</Table.Td>
                 <Table.Td>
