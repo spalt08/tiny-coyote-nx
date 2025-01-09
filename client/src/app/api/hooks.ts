@@ -70,3 +70,25 @@ export function useTicketAssignMutation() {
     },
   });
 }
+
+type TicketCompleteParams = {
+  ticketId: number,
+  completed: boolean
+}
+
+// POST /api/tickets/:ticketId/complete
+export function useTicketCompleteMutation() {
+  return useMutation({
+    mutationFn: ({ ticketId, completed }: TicketCompleteParams) => {
+      if (completed) {
+        return fetch(`/api/tickets/${ticketId}/complete`, {
+          method: 'PUT',
+        })
+      }
+
+      return fetch(`/api/tickets/${ticketId}/complete`, {
+        method: 'DELETE',
+      })
+    },
+  });
+}

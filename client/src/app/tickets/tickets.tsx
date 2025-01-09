@@ -5,17 +5,56 @@ import {
   Skeleton,
   Stack,
   Table,
+  Text,
   Title,
+  UnstyledButton,
 } from '@mantine/core';
 import { useTicketAssignMutation, useTicketList } from '../api/hooks';
 import { Link, useNavigate } from 'react-router-dom';
-import { IconPlus } from '@tabler/icons-react';
+import {
+  IconChevronDown,
+  IconChevronUp,
+  IconPlus,
+  IconSelector,
+} from '@tabler/icons-react';
 import UserSelector from '../userSelector/userSelector';
+import { useMemo, useState } from 'react';
+
+type SortByOptions = 'id' | 'description' | 'status';
 
 export function TicketsPage() {
   const navigate = useNavigate();
   const { isLoading, data } = useTicketList();
   const assignMutation = useTicketAssignMutation();
+
+  const [sortBy, setSortBy] = useState<SortByOptions>('id');
+  const [sortReversed, setSortReversed] = useState(false);
+
+  function handleSortClick(nextSortBy: SortByOptions, nextReversed: boolean) {
+    setSortBy(nextSortBy);
+    setSortReversed(nextReversed);
+  }
+
+  const sortedData = useMemo(
+    () =>
+      data?.sort((a, b) => {
+        if (sortBy === 'description') {
+          return sortReversed
+            ? b.description.localeCompare(a.description)
+            : a.description.localeCompare(b.description);
+        }
+
+        if (sortBy === 'status') {
+          return sortReversed
+            ? +a.completed - +b.completed
+            : +b.completed - +a.completed;
+        }
+
+        // id
+        return sortReversed ? b.id - a.id : a.id - b.id;
+      }) ?? [],
+    [sortBy, sortReversed, data]
+  );
 
   return (
     <Stack gap="xl">
@@ -28,9 +67,33 @@ export function TicketsPage() {
       <Table striped highlightOnHover={!isLoading}>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th w="10%">ID</Table.Th>
-            <Table.Th>Description</Table.Th>
-            <Table.Th w="20%">Status</Table.Th>
+            <Table.Th w="10%">
+              <SortHeader
+                label="ID"
+                sortKey="id"
+                sortBy={sortBy}
+                sortReversed={sortReversed}
+                onClick={handleSortClick}
+              />
+            </Table.Th>
+            <Table.Th>
+              <SortHeader
+                label="Description"
+                sortKey="description"
+                sortBy={sortBy}
+                sortReversed={sortReversed}
+                onClick={handleSortClick}
+              />
+            </Table.Th>
+            <Table.Th w="20%">
+              <SortHeader
+                label="Status"
+                sortKey="status"
+                sortBy={sortBy}
+                sortReversed={sortReversed}
+                onClick={handleSortClick}
+              />
+            </Table.Th>
             <Table.Th w="20%">Assignee</Table.Th>
           </Table.Tr>
         </Table.Thead>
@@ -38,8 +101,8 @@ export function TicketsPage() {
           {isLoading ? (
             <TicketsSkeleton />
           ) : (
-            data &&
-            data.map((it) => (
+            sortedData &&
+            sortedData.map((it) => (
               <Table.Tr
                 key={it.id}
                 style={{ cursor: 'pointer' }}
@@ -90,6 +153,44 @@ function TicketsSkeleton() {
       </Table.Td>
     </Table.Tr>
   ));
+}
+
+type SortHeaderProps = {
+  sortKey: SortByOptions;
+  label: string;
+  sortBy: SortByOptions;
+  sortReversed: boolean;
+  onClick: (sortBy: SortByOptions, reversed: boolean) => unknown;
+};
+
+function SortHeader({
+  sortKey,
+  sortBy,
+  sortReversed,
+  label,
+  onClick,
+}: SortHeaderProps) {
+  const Icon =
+    sortKey === sortBy
+      ? sortReversed
+        ? IconChevronUp
+        : IconChevronDown
+      : IconSelector;
+
+  return (
+    <UnstyledButton
+      onClick={() =>
+        sortKey === sortBy
+          ? onClick(sortKey, !sortReversed)
+          : onClick(sortKey, false)
+      }
+    >
+      <Group justify="space-between">
+        <Text>{label}</Text>
+        <Icon color="currentColor" size="14" />
+      </Group>
+    </UnstyledButton>
+  );
 }
 
 export default TicketsPage;
