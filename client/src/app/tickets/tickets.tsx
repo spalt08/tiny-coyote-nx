@@ -1,15 +1,31 @@
-import { Badge, Skeleton, Table, Title } from '@mantine/core';
-import { useTicketList } from '../api/hooks';
-import { useNavigate } from 'react-router-dom';
+import {
+  Badge,
+  Button,
+  Group,
+  Skeleton,
+  Stack,
+  Table,
+  Title,
+} from '@mantine/core';
+import { useTicketAssignMutation, useTicketList } from '../api/hooks';
+import { Link, useNavigate } from 'react-router-dom';
+import { IconPlus } from '@tabler/icons-react';
+import UserSelector from '../userSelector/userSelector';
 
 export function TicketsPage() {
   const navigate = useNavigate();
   const { isLoading, data } = useTicketList();
+  const assignMutation = useTicketAssignMutation();
 
   return (
-    <>
-      <Title>List</Title>
-      <Table mt="xl" striped highlightOnHover={!isLoading}>
+    <Stack gap="xl">
+      <Group justify="space-between">
+        <Title>List</Title>
+        <Button leftSection={<IconPlus />} component={Link} to="/new">
+          Create Ticket
+        </Button>
+      </Group>
+      <Table striped highlightOnHover={!isLoading}>
         <Table.Thead>
           <Table.Tr>
             <Table.Th w="10%">ID</Table.Th>
@@ -38,13 +54,20 @@ export function TicketsPage() {
                     <Badge color="blue">In Progress</Badge>
                   )}
                 </Table.Td>
-                <Table.Td>{it.assigneeId}</Table.Td>
+                <Table.Td>
+                  <UserSelector
+                    initialValue={it.assigneeId}
+                    onSelect={(userId) =>
+                      assignMutation.mutate({ ticketId: it.id, userId })
+                    }
+                  />
+                </Table.Td>
               </Table.Tr>
             ))
           )}
         </Table.Tbody>
       </Table>
-    </>
+    </Stack>
   );
 }
 

@@ -4,6 +4,7 @@ import '@mantine/core/styles.css';
 import TicketsPage from './tickets/tickets';
 import { Container } from '@mantine/core';
 import TicketDetailsPage from './ticketDetails/ticketDetails';
+import TicketCreatePage from './ticketCreate/ticketCreate';
 
 const App = () => {
   // const [tickets, setTickets] = useState([] as Ticket[]);
@@ -30,6 +31,7 @@ const App = () => {
     <Container py="lg">
       <Routes>
         <Route path="/" element={<TicketsPage />} />
+        <Route path="/new" element={<TicketCreatePage />} />
         <Route path="/:id" element={<TicketDetailsPage />} />
       </Routes>
     </Container>
